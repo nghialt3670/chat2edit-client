@@ -8,7 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import { v4 as uuid4 } from "uuid";
 import { readFilesToDataURL } from "../utils/helpers";
 
-export default function MessageInput({ replyImages, onSendMessage }) {
+export default function MessageInput({ replyImage, onSendMessage }) {
   const [images, setImages] = useState([]);
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
@@ -20,8 +20,9 @@ export default function MessageInput({ replyImages, onSendMessage }) {
   const prevImagesLength = useRef(0);
 
   useEffect(() => {
-    if (replyImages.length > 0) setImages(replyImages);
-  }, [replyImages]);
+    const newImage = { ...replyImage, id: uuid4() };
+    if (replyImage) setImages([...images, newImage]);
+  }, [replyImage]);
 
   useEffect(() => {
     // Scroll the image preview area to bottom only if more images are added
@@ -86,6 +87,7 @@ export default function MessageInput({ replyImages, onSendMessage }) {
     e.preventDefault();
     const message = {
       id: uuid4(),
+      sender: "user",
       images: images,
       text: text,
     };
@@ -102,7 +104,7 @@ export default function MessageInput({ replyImages, onSendMessage }) {
       className={`absolute bottom-10 ${borderRadiusStyle} bg-slate-200 lg:w-1/3 sm:w-3/4 h-fit`}
     >
       <div
-        className="flex flex-wrap items-center max-h-60 overflow-y-scroll"
+        className="flex flex-wrap items-center max-h-60 overflow-y-scroll no-scrollbar justify-between after:flex-auto gap-1"
         ref={imagePreviewAreaRef}
       >
         {images.map((img, idx) => (

@@ -5,19 +5,21 @@ import TopBar from "./TopBar";
 import MessagesContext from "../context/MessagesContext";
 
 function ChatBox() {
-  const [replyImages, setReplyImages] = useState([]);
+  const [replyImage, setReplyImage] = useState(null);
   const { messages, setMessages } = useContext(MessagesContext);
 
   const handleSendMessage = (message) => {
     setMessages([...messages, message]);
   };
+
+  const handleReplyImage = (image) => {
+    console.log(image);
+    setReplyImage(image);
+  };
   return (
     <div className="flex flex-col justify-start items-center bg-slate-400 min-w-96 w-full h-full">
-      <MessageList messages={messages} />
-      <MessageInput
-        replyImages={replyImages}
-        onSendMessage={handleSendMessage}
-      />
+      <MessageList messages={messages} onReplyImage={handleReplyImage} />
+      <MessageInput replyImage={replyImage} onSendMessage={handleSendMessage} />
     </div>
   );
 }

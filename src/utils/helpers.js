@@ -10,3 +10,10 @@ export async function readFilesToDataURL(files) {
     }),
   );
 }
+
+export function downloadFromDataURL(dataURL, filename) {
+  const link = document.createElement("a");
+  link.href = dataURL;
+  link.download = filename;
+  link.click();
+}
