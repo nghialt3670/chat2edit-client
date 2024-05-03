@@ -27,11 +27,11 @@ export default function MessageInput({ replyImage, onSendMessage }) {
   useEffect(() => {
     // Scroll the image preview area to bottom only if more images are added
     if (prevImagesLength.current < images.length) {
+      imagePreviewAreaRef.current.scroll({
+        top: imagePreviewAreaRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
-    imagePreviewAreaRef.current.scroll({
-      top: imagePreviewAreaRef.current.scrollHeight,
-      behavior: "smooth",
-    });
     textInputRef.current.focus();
     prevImagesLength.current = images.length;
   }, [images]);
@@ -87,6 +87,7 @@ export default function MessageInput({ replyImage, onSendMessage }) {
     e.preventDefault();
     const message = {
       id: uuid4(),
+      isPending: true,
       sender: "user",
       images: images,
       text: text,
@@ -110,7 +111,7 @@ export default function MessageInput({ replyImage, onSendMessage }) {
         {images.map((img, idx) => (
           <div className="relative" key={img.id}>
             <img
-              className="max-w-20 max-h-14 m-2 rounded opacity-50"
+              className="max-w-20 h-14 m-2 rounded opacity-60"
               src={img.url}
             />
             <div className="absolute top-0 right-0">

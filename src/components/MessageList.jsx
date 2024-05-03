@@ -1,42 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
-import { RiRobot3Fill } from "react-icons/ri";
+import React, { memo, useContext, useEffect, useRef, useState } from "react";
 import Message from "./Message";
-import Skeleton from "@mui/material/Skeleton";
 
-const LoadingMessage = ({ sender, onReplyImage }) => {
-  // TODO: Implement display logic when message is loading
-  return (
-    <div className="mb-10 flex flex-row float-left">
-      <div className="mr-4">
-        {sender === "user" ? (
-          <FaUser className="m-1" />
-        ) : (
-          <RiRobot3Fill className="m-1" />
-        )}
-      </div>
-      <div className="w-full">
-        <Skeleton animation="wave" />
-        <Skeleton animation="wave" />
-        <Skeleton animation="wave" />
-      </div>
-    </div>
-  );
-};
-
-export default function MessageList({ messages, onReplyImage }) {
+function MessageList({ messages, onReplyImage }) {
+  console.log("MessageList");
   const messageContainerRef = useRef(null);
-  const [isReplying, setIsReplying] = useState(false);
 
   useEffect(() => {
     messageContainerRef.current.scroll({
       top: messageContainerRef.current.scrollHeight,
       behavior: "smooth",
     });
-    if (messages.length > 0 && messages[messages.length - 1].sender === "user")
-      setTimeout(() => {
-        setIsReplying(true);
-      }, 1000);
-    else setIsReplying(false);
   }, [messages]);
 
   return (
@@ -47,13 +20,15 @@ export default function MessageList({ messages, onReplyImage }) {
       {messages.map((msg) => (
         <Message
           key={msg.id}
+          isPending={msg.isPending}
           sender={msg.sender}
           images={msg.images}
           text={msg.text}
           onReplyImage={onReplyImage}
         />
       ))}
-      {isReplying ? <LoadingMessage /> : undefined}
     </div>
   );
 }
+
+export default memo(MessageList);
