@@ -40,8 +40,10 @@ export default function MessageInput({ replyImage, onSendMessage }) {
     const loadImagesFromFiles = async () => {
       try {
         const urls = await readFilesToDataURL(files);
-        const images = urls.map((url) => ({
+        const images = urls.map((url, idx) => ({
           id: uuid4(),
+          canvasId: null,
+          filename: files[idx].name,
           url: url,
         }));
         setIsUploading(false);
@@ -87,7 +89,7 @@ export default function MessageInput({ replyImage, onSendMessage }) {
     e.preventDefault();
     const message = {
       id: uuid4(),
-      isPending: true,
+      isPending: images.length > 0,
       sender: "user",
       images: images,
       text: text,

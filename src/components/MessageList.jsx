@@ -1,8 +1,9 @@
 import React, { memo, useContext, useEffect, useRef, useState } from "react";
 import Message from "./Message";
+import useMessages from "../hooks/useMessages";
 
-function MessageList({ messages, onReplyImage }) {
-  console.log("MessageList");
+function MessageList({ onReplyImage }) {
+  const { messages, setMessages } = useMessages();
   const messageContainerRef = useRef(null);
 
   useEffect(() => {

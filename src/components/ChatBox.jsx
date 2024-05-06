@@ -1,12 +1,86 @@
-import React, { memo, useCallback, useContext, useState } from "react";
+import React, { memo, useCallback, useState, useEffect } from "react";
 import MessageInput from "./MessageInput";
 import MessageList from "./MessageList";
-import MessagesContext from "../context/MessagesContext";
+import useMessages from "../hooks/useMessages";
 import { v4 as uuid4 } from "uuid";
+import { uploadedImagesToCanvasesData } from "../utils/fabricUtils";
+import useCanvasesData from "../hooks/useCanvasesData";
+import { canvasDataToCompositeImage } from "../utils/mapping";
+import useLanguage from "../hooks/useLanguage";
 
 function ChatBox() {
   const [replyImage, setReplyImage] = useState(null);
-  const { messages, setMessages } = useContext(MessagesContext);
+  const { messages, setMessages } = useMessages();
+  const { canvasesData, setCanvasesData } = useCanvasesData();
+  const { language, setLanguage } = useLanguage();
+
+  useEffect(() => {
+    const updateMessages = async () => {
+      if (messages.length === 0) return;
+      const lastMessage = messages[messages.length - 1];
+
+      if (lastMessage.isPending) {
+        const pendedMessages = messages.slice(0, messages.length - 1);
+        if (lastMessage.sender === "user") {
+          const newImages = lastMessage.images.filter(
+            (img) => !(img.canvasId in canvasesData),
+          );
+          for (let i = 0; i < newImages.length; i++)
+            newImages[i].canvasId = uuid4();
+
+          const newCanvasesData = await uploadedImagesToCanvasesData(newImages);
+          setCanvasesData({ ...canvasesData, ...newCanvasesData });
+          setTimeout(() => {
+            setMessages([
+              ...pendedMessages,
+              { ...lastMessage, isPending: false, images: newImages },
+            ]);
+          }, 500);
+        } else {
+          const lastUserMessage = messages[messages.length - 2];
+          const reqImages =
+            lastUserMessage.images.length > 0
+              ? lastUserMessage.images
+              : lastMessage.images;
+
+          let requestHistory = null;
+
+          const reqCanvasesData = lastUserMessage.images.map(
+            (img) => canvasesData[img.canvasId],
+          );
+          const compositeImages = await Promise.all(
+            reqCanvasesData.map(
+              async (canvasData) =>
+                await canvasDataToCompositeImage(canvasData),
+            ),
+          );
+          const requestData = JSON.stringify({
+            instruction: lastUserMessage.text,
+            language: language,
+            feedback_history: requestHistory,
+            images: compositeImages,
+          });
+
+          const request = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: requestData,
+          };
+
+          // TODO: Implement send request message to server
+        }
+      } else if (lastMessage.sender === "user") {
+        setTimeout(() => {
+          setMessages([
+            ...messages,
+            { id: uuid4(), sender: "bot", isPending: true },
+          ]);
+        }, 500);
+      }
+    };
+
+    updateMessages();
+  }, [messages]);
 
   const handleSendMessage = (message) => {
     // TODO: Implement response to user when user send message
@@ -19,23 +93,7 @@ function ChatBox() {
       alert("Wait for message pending!");
       return;
     }
-    // Display pending state of the user message first
     setMessages([...messages, message]);
-    setTimeout(() => {
-      // Display actual message data of the user (after render all images)
-      setMessages((prev) => {
-        const newMessages = [...prev];
-        newMessages[newMessages.length - 1].isPending = false;
-        setTimeout(() => {
-          // Display pending state of the bot response
-          setMessages((prev) => {
-            if (prev[prev.length - 1].sender === "bot") return prev;
-            return [...prev, { id: uuid4(), sender: "bot", isPending: true }];
-          });
-        }, 1000);
-        return newMessages;
-      });
-    }, 500);
   };
 
   const handleReplyImage = useCallback((image) => {
@@ -44,7 +102,7 @@ function ChatBox() {
 
   return (
     <div className="flex flex-col justify-start items-center bg-slate-400 min-w-96 w-full h-full">
-      <MessageList messages={messages} onReplyImage={handleReplyImage} />
+      <MessageList onReplyImage={handleReplyImage} />
       <MessageInput replyImage={replyImage} onSendMessage={handleSendMessage} />
     </div>
   );
