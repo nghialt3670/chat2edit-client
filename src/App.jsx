@@ -8,7 +8,7 @@ import ContextProvider from "./context/ContextProvider";
 export default function App() {
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [canvasesData, setCanvasesData] = useState({});
+  const [canvasesData, setCanvasesData] = useState([]);
   const [language, setLanguage] = useState("vi");
 
   return (

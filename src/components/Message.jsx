@@ -3,7 +3,7 @@ import React, { memo, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 import { MdFileDownload } from "react-icons/md";
 import { MdOutlineReply } from "react-icons/md";
-import { downloadFromDataURL } from "../utils/helpers";
+import { downloadFileFromDataURL } from "../utils/helpers";
 import Skeleton from "@mui/material/Skeleton";
 import UserAvatar from "./UserAvatar";
 import AppLogo from "./AppLogo";
@@ -12,7 +12,7 @@ function Message({ isPending, sender, images, text, onReplyImage }) {
   const handleEditImage = (image) => {};
 
   const handleDownloadImage = (image) => {
-    downloadFromDataURL(image.url, image.filename);
+    downloadFileFromDataURL(image.dataURL, image.filename);
   };
 
   const handleReplyImage = (image) => {
@@ -29,7 +29,7 @@ function Message({ isPending, sender, images, text, onReplyImage }) {
   }
 
   return (
-    <div className="mb-10 flex flex-row float-left">
+    <div className="mb-5 flex flex-row float-left">
       <div className="mr-4 w-8 flex justify-center">
         {sender === "user" ? <UserAvatar size={24} /> : <AppLogo size={24} />}
       </div>
@@ -45,7 +45,7 @@ function Message({ isPending, sender, images, text, onReplyImage }) {
           <div className="flex flex-wrap after:flex-auto gap-4 mt-2">
             {images.map((img) => (
               <div className="relative flex flex-row" key={img.id}>
-                <img src={img.url} style={{ height: imgHeight }} />
+                <img src={img.dataURL} style={{ height: imgHeight }} />
                 <div className="m-0 flex flex-col bg-gray-100 bg-opacity-50 rounded-r w-8">
                   <IconButton size="small" onClick={() => handleEditImage(img)}>
                     <RiImageEditFill className="size-full" />

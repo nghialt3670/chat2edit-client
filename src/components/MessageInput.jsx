@@ -6,7 +6,7 @@ import { IoIosAddCircle } from "react-icons/io";
 import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import { v4 as uuid4 } from "uuid";
-import { readFilesToDataURL } from "../utils/helpers";
+import { readFilesToDataURLs } from "../utils/helpers";
 
 export default function MessageInput({ replyImage, onSendMessage }) {
   const [images, setImages] = useState([]);
@@ -39,12 +39,12 @@ export default function MessageInput({ replyImage, onSendMessage }) {
   useEffect(() => {
     const loadImagesFromFiles = async () => {
       try {
-        const urls = await readFilesToDataURL(files);
-        const images = urls.map((url, idx) => ({
+        const data_urls = await readFilesToDataURLs(files);
+        const images = data_urls.map((dataURL, idx) => ({
           id: uuid4(),
           canvasId: null,
           filename: files[idx].name,
-          url: url,
+          dataURL: dataURL,
         }));
         setIsUploading(false);
         if (isAddingMore) setImages((prev) => [...prev, ...images]);
@@ -114,7 +114,7 @@ export default function MessageInput({ replyImage, onSendMessage }) {
           <div className="relative" key={img.id}>
             <img
               className="max-w-20 h-14 m-2 rounded opacity-60"
-              src={img.url}
+              src={img.dataURL}
             />
             <div className="absolute top-0 right-0">
               <IconButton size="small" onClick={() => handleDeleteImage(idx)}>

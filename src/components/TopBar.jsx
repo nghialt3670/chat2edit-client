@@ -46,6 +46,7 @@ export default function TopBar({ onToggleSideBar }) {
         </h1>
       </div>
       <Select
+        size="small"
         className="ml-auto w-fit"
         value={language}
         onChange={handleLanguageChange}
